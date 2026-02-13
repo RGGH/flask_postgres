@@ -40,7 +40,9 @@ def init_db():
                     CREATE TABLE IF NOT EXISTS products (
                         id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
                         name TEXT NOT NULL,
-                        price NUMERIC(6,2) NOT NULL CHECK (price >= 0)
+                        price NUMERIC(6,2) NOT NULL CHECK (price >= 0),
+                        created TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                        updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
                     );
                     """
                 )
@@ -56,6 +58,7 @@ def init_db():
                         VALUES
                             ('Apple', 1.99),
                             ('Orange', 0.99),
+                            ('Pear', 0.79),
                             ('Banana', 0.59);
                         """
                     )
@@ -109,7 +112,7 @@ def update():
         with conn:
             with conn.cursor() as cur:
                 cur.execute(
-                    'UPDATE products SET name=%s, price=%s WHERE id=%s',
+                    'UPDATE products SET name=%s, price=%s, updated_at=CURRENT_TIMESTAMP WHERE id=%s',
                     (name, price, id)
                 )
     finally:
