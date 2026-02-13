@@ -2,8 +2,17 @@
 	<head>
   <title>CRUD App</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    table {
+      table-layout: auto;
+      width: 100%;
+    }
+    td:last-child {
+      width: 1%;
+      white-space: nowrap;
+    }
+  </style>
 </head>
-
   <body>
     <h1>CRUD App</h1>
     <table>
@@ -22,16 +31,18 @@
           <td>{{ row[1] }}</td>
           <td>{{ row[2] }}</td>
           <td>
-            <form action="/update" method="post">
-              <input type="hidden" name="id" value="{{ row[0] }}">
-              <input type="text" name="name" value="{{ row[1] }}">
-              <input type="text" name="price" value="{{ row[2] }}">
-              <input type="submit" value="Update">
-            </form>
-            <form action="/delete" method="post">
-              <input type="hidden" name="id" value="{{ row[0] }}">
-              <input type="submit" value="Delete">
-            </form>
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <form action="/update" method="post" style="display: flex; gap: 5px; margin: 0;">
+                <input type="hidden" name="id" value="{{ row[0] }}">
+                <input type="text" name="name" value="{{ row[1] }}">
+                <input type="text" name="price" value="{{ row[2] }}">
+                <input type="submit" value="Update">
+              </form>
+              <form action="/delete" method="post" style="margin: 0;">
+                <input type="hidden" name="id" value="{{ row[0] }}">
+                <input type="submit" value="Delete">
+              </form>
+            </div>
           </td>
         </tr>
         {% endfor %}
