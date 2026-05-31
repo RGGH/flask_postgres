@@ -69,13 +69,13 @@ input[type="submit"]:hover {
   box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 
-/* ===== Create Card ===== */
+/* ===== Create New Product Card (Pale Lime Green) ===== */
 form[action="/create"] {
   display: block;
   width: 320px;
   margin: 30px auto;
   padding: 18px;
-  background: #fff5d9; /* match table background */
+  background: linear-gradient(135deg, #e6f7d9, #d9f2b3); /* pale lime gradient */
   border-radius: 10px;
   box-shadow: 0 8px 18px rgba(0,0,0,0.08);
   text-align: center;
@@ -84,8 +84,24 @@ form[action="/create"] {
 form[action="/create"] input[type="text"] {
   width: 90%;
   margin-bottom: 10px;
+  border: 1px solid #c0e6a5;
+  background: #f0fde6;
+  color: #4b3f2f;
 }
 
 form[action="/create"] input[type="submit"] {
   width: 100%;
+  padding: 7px 14px;
+  border: none;
+  border-radius: 7px;
+  background: linear-gradient(90deg, #d9f2b3, #e6f7d9); /* subtle lime gradient */
+  color: #4b3f2f;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+form[action="/create"] input[type="submit"]:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }

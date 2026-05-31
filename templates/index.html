@@ -1,6 +1,6 @@
 <html>
 	<head>
-  <title>CRUD App</title>
+  <title>Python Flask App with POSTGRES DB</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <style>
     table {
@@ -14,7 +14,7 @@
   </style>
 </head>
   <body>
-    <h1>CRUD App</h1>
+    <h1>Python Flask App with POSTGRES DB</h1>
     <table>
       <thead>
         <tr>
@@ -24,29 +24,29 @@
           <th>Actions</th>
         </tr>
       </thead>
-      <tbody>
-        {% for row in data %}
-        <tr>
-          <td>{{ row[0] }}</td>
-          <td>{{ row[1] }}</td>
-          <td>{{ row[2] }}</td>
-          <td>
-            <div style="display: flex; gap: 10px; align-items: center;">
-              <form action="/update" method="post" style="display: flex; gap: 5px; margin: 0;">
-                <input type="hidden" name="id" value="{{ row[0] }}">
-                <input type="text" name="name" value="{{ row[1] }}">
-                <input type="text" name="price" value="{{ row[2] }}">
-                <input type="submit" value="Update">
-              </form>
-              <form action="/delete" method="post" style="margin: 0;">
-                <input type="hidden" name="id" value="{{ row[0] }}">
-                <input type="submit" value="Delete">
-              </form>
-            </div>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
+     <tbody>
+  {% for row in data %}
+  <tr>
+    <td>{{ row.id }}</td>
+    <td>{{ row.name }}</td>
+    <td>{{ row.price }}</td>
+    <td>
+      <div style="display: flex; gap: 10px; align-items: center;">
+        <form action="/update" method="post" style="display: flex; gap: 5px; margin: 0;">
+          <input type="hidden" name="id" value="{{ row.id }}">
+          <input type="text" name="name" value="{{ row.name }}">
+          <input type="text" name="price" value="{{ row.price }}">
+          <input type="submit" value="Update">
+        </form>
+        <form action="/delete" method="post" style="margin: 0;">
+          <input type="hidden" name="id" value="{{ row.id }}">
+          <input type="submit" value="Delete">
+        </form>
+      </div>
+    </td>
+  </tr>
+  {% endfor %}
+</tbody>
     </table>
     <h2>Create a new product</h2>
     <form action="/create" method="post">
