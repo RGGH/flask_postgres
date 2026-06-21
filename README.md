@@ -2,6 +2,35 @@
 
 A web application built with Python, Flask, and PostgreSQL 17, following modern development standards.
 
+## Running the Application
+
+Start the Flask API and PostgreSQL database with Docker Compose:
+
+```bash
+docker compose up -d
+```
+
+Open a second terminal and change into the frontend directory:
+
+```bash
+cd frontend
+```
+
+Install the frontend dependencies:
+
+```bash
+npm install
+```
+
+Start the Vite development server:
+
+```bash
+npm run dev
+```
+
+The frontend will be available at the local URL shown in the terminal (typically `http://localhost:5173`).
+
+
 ## Stack
 
 - **React**
