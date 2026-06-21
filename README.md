@@ -1,4 +1,4 @@
-# ~~Flask~~ FastAPI + PostgreSQL
+# Flask + PostgreSQL + React
 
 A web application built with Python, Flask, and PostgreSQL 17, following modern development standards.
 
@@ -34,6 +34,7 @@ The frontend will be available at the local URL shown in the terminal (typically
 ## Stack
 
 - **React**
+- **Flask**
 - **Python**
 - **PostgreSQL 17** — database, running in Docker
 - **psycopg2** — raw SQL with connection pooling (no ORM)
