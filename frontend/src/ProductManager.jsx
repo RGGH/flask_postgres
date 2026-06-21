@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Pencil, Trash2, Plus, Loader2, AlertCircle } from 'lucide-react';
 
-// Point this at your Flask API, e.g. '/api/products' if served from the
-// same origin, or 'http://localhost:5000/api/products' if separate.
 const API_BASE = '/api/products';
 
 // Shown if the API can't be reached, so the UI is still browsable.

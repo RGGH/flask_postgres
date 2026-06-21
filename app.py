@@ -1,6 +1,6 @@
+# app.py
 import os
 from flask import Flask, jsonify, request
-from dotenv import load_dotenv
 import psycopg2
 import psycopg2.extras
 
@@ -19,15 +19,6 @@ DB_CONFIG = {
 
 def get_db():
     return psycopg2.connect(**DB_CONFIG)
-
-
-# Run this once against your database:
-
-# CREATE TABLE products (
-#     id SERIAL PRIMARY KEY,
-#     name TEXT NOT NULL,
-#     price NUMERIC(10, 2) NOT NULL
-# );
 
 
 @app.route("/api/products", methods=["GET"])
