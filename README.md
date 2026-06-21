@@ -1,4 +1,4 @@
-# Flask + PostgreSQL
+# ~~Flask~~ FastAPI + PostgreSQL
 
 A web application built with Python, Flask, and PostgreSQL 17, following modern development standards.
 
