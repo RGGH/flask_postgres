@@ -4,7 +4,8 @@ A web application built with Python, Flask, and PostgreSQL 17, following modern 
 
 ## Stack
 
-- **Python / Flask** — web framework with Jinja2 server-side rendering
+- **React**
+- **Python**
 - **PostgreSQL 17** — database, running in Docker
 - **psycopg2** — raw SQL with connection pooling (no ORM)
 - **uv** — package manager
@@ -24,16 +25,57 @@ A web application built with Python, Flask, and PostgreSQL 17, following modern 
 ## Project Structure
 
 ```
-.
-├── app.py
-├── docker-compose.yml
-├── Dockerfile
-├── pyproject.toml
-├── .env
-├── static/
-│   └── style.css
-└── templates/
-    └── index.html
+❯ lt
+ .
+├──  app.py
+├──  docker-compose.yml
+├──  Dockerfile
+├──  frontend
+│   ├──  eslint.config.js
+│   ├──  index.html
+│   ├──  node_modules
+│   ├──  package-lock.json
+│   ├──  package.json
+│   ├──  public
+│   ├──  README.md
+│   ├── 󱧼 src
+│   └──  vite.config.js
+├──  node_modules
+│   ├──  @emnapi
+│   ├──  @jridgewell
+│   ├──  @napi-rs
+│   ├──  @oxc-project
+│   ├──  @rolldown
+│   ├──  @tailwindcss
+│   ├──  @tybys
+│   ├──  detect-libc
+│   ├──  enhanced-resolve
+│   ├──  fdir
+│   ├──  graceful-fs
+│   ├──  jiti
+│   ├──  lightningcss
+│   ├──  lightningcss-linux-x64-gnu
+│   ├──  magic-string
+│   ├──  nanoid
+│   ├──  picocolors
+│   ├──  picomatch
+│   ├──  postcss
+│   ├──  rolldown
+│   ├──  source-map-js
+│   ├──  tailwindcss
+│   ├──  tapable
+│   ├──  tinyglobby
+│   ├──  tslib
+│   └──  vite
+├──  package-lock.json
+├──  package.json
+├──  pyproject.toml
+├──  README.md
+├──  static
+│   └──  style.css
+├──  templates
+│   └──  index.html
+└──  uv.lock
 ```
 
 ## Getting Started
@@ -57,11 +99,27 @@ DB_PORT=5432
 
 > `DB_HOST=db` refers to the PostgreSQL service name in `docker-compose.yml` — this is how the two containers find each other.
 
+```
+    Install tailwind
+    cd frontend
+    npm install tailwindcss @tailwindcss/vite
+```
+
 ### 2. Start the stack
 
 ```bash
 docker compose up --build
 ```
+
+```bash
+docker compose exec db psql -U myuser -d flask_db -c "
+CREATE TABLE products (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    price NUMERIC(10, 2) NOT NULL
+);"
+```
+
 
 Then open [http://localhost:5000](http://localhost:5000).
 

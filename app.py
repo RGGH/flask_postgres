@@ -1,110 +1,111 @@
-from flask import Flask, render_template, request, redirect, url_for
-from psycopg2 import pool
-import psycopg2.extras
 import os
+from flask import Flask, jsonify, request
 from dotenv import load_dotenv
-from contextlib import contextmanager
+import psycopg2
+import psycopg2.extras
 
 load_dotenv()
 
 app = Flask(__name__)
 
-# Database config from environment
 DB_CONFIG = {
-    "database": os.environ["DB_NAME"],
-    "user": os.environ["DB_USER"],
-    "password": os.environ["DB_PASS"],
-    "host": os.environ["DB_HOST"],
-    "port": os.environ["DB_PORT"],
+    "host": os.environ.get("DB_HOST", "localhost"),
+    "port": os.environ.get("DB_PORT", 5432),
+    "dbname": os.environ.get("DB_NAME"),
+    "user": os.environ.get("DB_USER"),
+    "password": os.environ.get("DB_PASS"),
 }
 
-# Create a connection pool
-connection_pool = pool.SimpleConnectionPool(1, 10, **DB_CONFIG)
 
-@contextmanager
 def get_db():
-    conn = connection_pool.getconn()
+    return psycopg2.connect(**DB_CONFIG)
+
+
+# Run this once against your database:
+
+# CREATE TABLE products (
+#     id SERIAL PRIMARY KEY,
+#     name TEXT NOT NULL,
+#     price NUMERIC(10, 2) NOT NULL
+# );
+
+
+@app.route("/api/products", methods=["GET"])
+def get_products():
+    conn = get_db()
     try:
-        yield conn
-    finally:
-        connection_pool.putconn(conn)
-
-# ---- Database setup (runs once on startup) ----
-def init_db():
-    with get_db() as conn:
-        with conn:
-            with conn.cursor() as cur:
-                cur.execute(
-                    """
-                    CREATE TABLE IF NOT EXISTS products (
-                        id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-                        name TEXT NOT NULL,
-                        price NUMERIC(6,2) NOT NULL CHECK (price >= 0),
-                        created TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                        updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
-                    );
-                    """
-                )
-                cur.execute("SELECT COUNT(*) FROM products;")
-                count = cur.fetchone()[0]
-                if count == 0:
-                    cur.execute(
-                        """
-                        INSERT INTO products (name, price)
-                        VALUES
-                            ('Apple', 1.99),
-                            ('Orange', 0.99),
-                            ('Pear', 0.79),
-                            ('Banana', 0.59);
-                        """
-                    )
-
-init_db()
-
-# ---- Routes ----
-
-@app.route('/')
-def index():
-    with get_db() as conn:
         with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
-            cur.execute('SELECT * FROM products ORDER BY id')
-            data = cur.fetchall()
-    return render_template('index.html', data=data)
+            cur.execute("SELECT id, name, price FROM products ORDER BY id")
+            rows = cur.fetchall()
+        return jsonify([dict(r) for r in rows])
+    finally:
+        conn.close()
 
-@app.route("/create", methods=["POST"])
-def create():
-    name = request.form["name"]
-    price = request.form["price"]
-    with get_db() as conn:
-        with conn:
-            with conn.cursor() as cur:
-                cur.execute(
-                    "INSERT INTO products (name, price) VALUES (%s, %s)", (name, price)
-                )
-    return redirect(url_for("index"))
 
-@app.route("/update", methods=["POST"])
-def update():
-    name = request.form["name"]
-    price = request.form["price"]
-    product_id = request.form["id"]
-    with get_db() as conn:
-        with conn:
-            with conn.cursor() as cur:
-                cur.execute(
-                    "UPDATE products SET name=%s, price=%s, updated_at=CURRENT_TIMESTAMP WHERE id=%s",
-                    (name, price, product_id),
-                )
-    return redirect(url_for("index"))
+@app.route("/api/products", methods=["POST"])
+def create_product():
+    data = request.get_json(silent=True) or {}
+    name = str(data.get("name", "")).strip()
+    price = data.get("price")
 
-@app.route("/delete", methods=["POST"])
-def delete():
-    product_id = request.form["id"]
-    with get_db() as conn:
-        with conn:
-            with conn.cursor() as cur:
-                cur.execute("DELETE FROM products WHERE id=%s", (product_id,))
-    return redirect(url_for("index"))
+    if not name or price is None:
+        return jsonify({"error": "name and price are required"}), 400
+
+    conn = get_db()
+    try:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute(
+                "INSERT INTO products (name, price) VALUES (%s, %s) "
+                "RETURNING id, name, price",
+                (name, price),
+            )
+            new_row = cur.fetchone()
+        conn.commit()
+        return jsonify(dict(new_row)), 201
+    finally:
+        conn.close()
+
+
+@app.route("/api/products/<int:product_id>", methods=["PUT"])
+def update_product(product_id):
+    data = request.get_json(silent=True) or {}
+    name = str(data.get("name", "")).strip()
+    price = data.get("price")
+
+    if not name or price is None:
+        return jsonify({"error": "name and price are required"}), 400
+
+    conn = get_db()
+    try:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute(
+                "UPDATE products SET name = %s, price = %s WHERE id = %s "
+                "RETURNING id, name, price",
+                (name, price, product_id),
+            )
+            updated_row = cur.fetchone()
+        conn.commit()
+        if updated_row is None:
+            return jsonify({"error": "product not found"}), 404
+        return jsonify(dict(updated_row))
+    finally:
+        conn.close()
+
+
+@app.route("/api/products/<int:product_id>", methods=["DELETE"])
+def delete_product(product_id):
+    conn = get_db()
+    try:
+        with conn.cursor() as cur:
+            cur.execute("DELETE FROM products WHERE id = %s", (product_id,))
+            deleted = cur.rowcount
+        conn.commit()
+        if deleted == 0:
+            return jsonify({"error": "product not found"}), 404
+        return "", 204
+    finally:
+        conn.close()
+
 
 if __name__ == "__main__":
     app.run(debug=True)
